@@ -4,6 +4,7 @@
 
 #Obtained fasta file from Carol Lee Lab at which I am employed:
 slc4_cds.fasta
+#note: quality control was previously run
 
 #data includes cDNA sequences of the SCL4 gene family for arthropods
 #data information: cDNA sequences that code for proteins involved in bicarbonate ion transport
