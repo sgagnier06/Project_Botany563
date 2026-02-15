@@ -10,11 +10,13 @@ slc4_cds.fasta
 #data information: cDNA sequences that code for proteins involved in bicarbonate ion transport
 #data includes 74 different sequences corresponding to different arthropod species
 
+
+## ClustalW
+
 #Downloaded ClustalW via bioconda:
 conda install -c bioconda clustalw
-
-### ClustalW information:
  
+### Information: 
 #ClustalW is a software that is used to align homologous DNA, RNA, or protein sequences
 #ClustalW uses pairwise alignment, a guide tree, and progressive multiple alignement to align sequences
 #It has been utilized by scientists for over 35 years
