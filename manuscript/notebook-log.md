@@ -2,6 +2,8 @@
 #Purpose: To log the path I take to process
 #my data from sequence to phylogenetic tree
 
+### Data
+
 #Obtained fasta file from Carol Lee Lab at which I am employed:
 slc4_cds.fasta
 #note: quality control was previously run
@@ -9,7 +11,10 @@ slc4_cds.fasta
 #data includes cDNA sequences of the SCL4 gene family for arthropods
 #data information: cDNA sequences that code for proteins involved in bicarbonate ion transport
 #data includes 74 different sequences corresponding to different arthropod species
-
+#Confirmed the amount of sequences in the fasta file with:
+grep ">" slc4_cds.fasta | wc -l 
+#Outcome: there are 74 sequences 
+#Checked file: 74 arthropod species
 
 ## ClustalW
 
@@ -27,10 +32,6 @@ conda install -c bioconda clustalw
 #SLOW pairwise alignment gap penalty: 10.00; gap extension penatly: 0.10
 #Multiple alignment gap penalty: 10.00; Gap extension penalty: 0.20
 
-#Confirmed the amount of sequences in the fasta file with:
-grep ">" slc4_cds.fasta | wc -l 
-#Outcome: there are 74 sequences 
-#Checked file: 74 arthropod species
 
 #ran ClustalW with default parameters listed above to align sequences and place them
 #in a new file named slc4_cds-aligned.fasta:
