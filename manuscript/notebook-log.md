@@ -6,15 +6,21 @@
 #Obtained fasta file from Carol Lee Lab at which I am employed:
 
 slc4_cds.fasta
+
 #note: quality control was previously run
 
 #data includes cDNA sequences of the SCL4 gene family for arthropods
+
 #data information: cDNA sequences that code for proteins involved in bicarbonate ion transport
+
 #data includes 74 different sequences corresponding to different arthropod species
+
 #Confirmed the amount of sequences in the fasta file with:
 
 grep ">" slc4_cds.fasta | wc -l 
+
 #Outcome: there are 74 sequences 
+
 #Checked file: 74 arthropod species
 
 ## ClustalW
@@ -34,6 +40,7 @@ ClustalW assumes that the sequences input into the software are homologous, and 
 #For gap penalties, I chose to use the default parameters, which are as follows:
 
 #SLOW pairwise alignment gap penalty: 10.00; gap extension penatly: 0.10
+
 #Multiple alignment gap penalty: 10.00; Gap extension penalty: 0.20
 
 
@@ -42,7 +49,9 @@ ClustalW assumes that the sequences input into the software are homologous, and 
 clustalw2 -ALIGN -INFILE=slc4_cds.fasta -OUTFILE=slc4_cds-aligned.fasta -OUTPUT=FASTA
 
 #Outcome: successful;multiple alignment with 73 groups
+
 #Alignment score: 16922952
+
 #Checked alignment in AlignmentViewer:
 https://alignmentviewer.org/
 
@@ -72,6 +81,7 @@ It is additionally suitable for <200 sequences, which works well for my 74 seque
 #For gap penalties, I chose to use the default parameters, which are as follows:
 
 #Gap opening penalty: default: 1.53
+
 #Gap extension penalty: default: 0.00
 
 #ran MAFFT with default parameters, and chose the L-INS-i algorithm. I placed the aligned sequences in a new file named slc4_cds_mafftV1_aligned:
