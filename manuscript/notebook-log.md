@@ -176,7 +176,6 @@ title("Slc4 Distance tree")
 
 #Results: obtained a distance-based tree. Exported it to a image file and placed it in my data file.
 
-#Note: need to assess the accuacy of this tree at a later time
 
 ## Obtaining a parsimony-based tree
 
@@ -223,5 +222,98 @@ However, the model has the major shortcoming that it severely underestimates whe
 #Outcome: Created a parsimony tree that I still need to cleanup and assess for accuracy. 
 I also converted this to a image file and added it to the data folder for this project
 
-#Note: still need to clean the tree up and assess accuracy of assumptions made when comparing to distance and likelihood methods.
+## Obtaining a Maximum Likelihood Tree Using IQTree
+
+### IQTree Information
+
+#I chose to use the IQTree software, namely iqtree3.1.0 as, per its documentation, it minimizes computing time while maximizing ML approximation over RAxML.
+IQ-TREE is a phylogenetic inference program that constructs phylogenetic trees using ML framework.
+It evaluates many possible tree topologies and selects the one that maximizes the probability of observation given a evolutionary model.
+IQ-TREE assumes that sequences are correctly aligned beforehand with MSA. It additionally holds the main assumptions of ML, namely that 
+1) The mutation process is the same at all branches
+2) All sites evolve independently
+3) all sites evolve the same 
+Further, it assumes validity of whichever evolutionary model it finds the tree with maximum likelihood for, as well as assuming that the correct model was found.
+
+#Some strengths of IQ-TREE include that it often finds trees with higher likelihoods in a shorter time compared to other software like RAxML.
+Additionally, it is credited for its automatic model selection, which skips the step where the user must decide the model.
+Further, it implements ultrafast bootstrapping methods to assure accurate branch estimations. This along with its wide flexibility and computational efficiency make it one of the most widely used softwares of its kind.
+
+#However, IQ-TREE weaknesses. First off, like other software, it must use heuristic models to search the extremely large tree space, and thus cannot assure that it will find the tree with the highest probability.
+The quality of the alignment also poses a problem, as it assumes that the data is properly aligned. If data is improperly aligned, IQ-TREE implements ways to show the user the improper alignment, namely through terrace fragging.
+As it also decides the model of evolution used, it can often run into issues where it assumes a false model of evolution.
+
+#If the user wished to, they could choose their model manually. Further, they could choose their own bootstrap method to run as well, as well as specifying how many bootstraps to run.
+The search parameters can also be chosen, such as the number of tree search replicates, stopping criteria, and starting tree selection.
+
+
+#I began by installing the software IQ-TREE (I am using version 3.1.0 for Linux)
+
+#I then copied it into a bin so that it is on my PATH:
+
+#sudo cp iqtree3_intel /usr/local/bin/iqtree3
+
+#for this step, I again used the file slc4_cds_mafftV1_aligned.fasta. To run the software, I ran:
+
+#iqtree3 -s slc4_cds_mafftV1_aligned.fasta
+
+#Outcome: ran 216 iterations doing ModelFinder and tree construction analysis.
+
+#The best fit model according to IQTree was GTR+F+I+R6.
+This model involves the General Time Reversible Model (GTR), which is the core nucleotide substitution model.
+Additionally, it uses empirical base frequencies (+F), or the frequencies observed in my alignment.
+The +I indicates invariant site usage, which means that some sites in the alignment are assumed to never change.
+Finally, +R6 indicates the FreeRate model with 6 rate categories, which models rate variations among sites, allowing for different evolutionary speeds.
+
+#The BIC (Bayesian Information Criterion) score was 456608.8364
+
+#Note that this inferred an UNROOTED tree 
+
+#I then did a quick and dirty plot in R:
+
+#library (ape)
+
+#tre = read.tree(file="slc4_cds_mafftV1_aligned.fasta.treefile")
+
+#plot(tre)
+
+#to visualize nodes, I ran:
+
+#nodelabels()
+
+### Note: Still need to consult biological data to root the tree
+
+#For an example, I rooted the tree at the root the ML tree suggested:
+
+#rtre = root(tre, node=76, resolve.root=TRUE)
+
+#plot(rtre)
+
+#Note: both of these trees were saved as pdf files, and the biologically selected tree will also be saved
+
+#To quantify support for the estimated tree, I chose the best model by IQ-Tree, doing 10 bootstrap replicates:
+
+#iqtree3 -s slc4_cds_mafftV1_aligned.fasta -m GTR+F+I+R6 -b 10 -pre slc4_cds_mafftV1_aligned
+
+#I then plotted the tree with bootstrap support:
+
+#library(ape)
+
+#tre = read.tree(file="slc4_cds_mafftV1_aligned.fasta-iqtree-bootstrap.treefile")
+
+#plot(tre)
+
+#nodelabels()
+
+#rtre = root(tre, node=76, resolve.root=TRUE)
+
+#plot(rtre)
+
+#nodelabels(rtre$node.label)
+
+#these two trees were also saved as pdfs "bootstrap"
+
+### Note: Just to reiterate, these will be run if the node selected does not align with the biological node of the expected phylogenetic tree.
+
+### Note: I may also run this in RAxML and compare the model selection.
 
