@@ -411,7 +411,7 @@ To create this nexus file, I ran this code in R:
 
 #library(ape)
 
-# x <- read.dna("slc4_cds_mafftV1_aligned.fasta", format = "fasta")
+#x <- read.dna("slc4_cds_mafftV1_aligned.fasta", format = "fasta")
 write.nexus.data(as.list(as.character(x)), file = "slc4_cds_mafftV1_aligned_clean.nex")
 
 #Now to append the MrBayes block to the end of the nexus file (slc4_cds_mafftV1_aligned_mb.nex):
