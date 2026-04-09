@@ -281,9 +281,7 @@ Finally, +R6 indicates the FreeRate model with 6 rate categories, which models r
 
 #nodelabels()
 
-### Note: Still need to consult biological data to root the tree
-
-#For an example, I rooted the tree at the root the ML tree suggested:
+#I rooted the tree at the root the ML tree suggested:
 
 #rtre = root(tre, node=76, resolve.root=TRUE)
 
