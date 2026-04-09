@@ -313,7 +313,150 @@ Finally, +R6 indicates the FreeRate model with 6 rate categories, which models r
 
 #these two trees were also saved as pdfs "bootstrap"
 
-### Note: Just to reiterate, these will be run if the node selected does not align with the biological node of the expected phylogenetic tree.
+### Important Note: For the rooting of this tree, an outgroup choice was simply based on the algorithm, not biological data. Long story short, this was simply due to the incompatibility of the dataset I was given. The evolutionary history of this gene family makes it hard to pinpoint the most ancestral species.
 
-### Note: I may also run this in RAxML and compare the model selection.
+## Running Bayesian Inference Software in Mr. Bayes
 
+### Mr. Bayes/Bayesian Inference Information
+
+#Mr. Bayes is a widely used software that uses Bayesian inference to infer phylogenetic trees.
+It utilizes the Markov Chain Monte Carlo (MCMC), which starts with a random tree and makes small changes repeatedly, outputting a posterior distribution of trees.
+From this, you get posterior probabilities, as well as parameter estimates, and a consensus tree.
+Key assumptions of Mr. Bayes include that whatever model of evolution is chosen is correct, as well as assuming that sites evolve independently from one another. Further, it is assumed that base frequencies are constant over time, and (usually) that the same process occurs across all branches.
+Importantly, it also assumes that the MCMC converges and actually explores the tree space effectively.
+
+#Some strengths of Mr. Bayes include that it doesn't just give you "the best tree," rather, it gives you posterior probabilities. This allows it to better incorporate uncertainty. Further, it can handle a wider range of datasets and has a rich output, that can be used by Tracer (used later on)
+
+#Some weaknesses of Mr. Bayes are that it is computationally expensive, as it runs millions of generations, and is especially time consuming with large datasets.
+Also, convergence is not guaranteed, thus Tracer is needed as a diagnostic to see whether the MCMC chain actually converges or not.
+Further, it is sensitive to the prior chosen by the user. If the prior is poor, it can lead to misleading trees and a misleading posterior distribution.
+On a similar note, the user can also choose the model, and if the model does not fit the data well, then the results can look "confident" in the end.
+
+#Mr. Bayes allows the user to make many choices on how the software will run. As previously mentioned, the user can choose the prior and substitution model.
+Further, the user chooses the number of generations. This is important as too few generations leads to no convergence, whereas too many generations is much more computationally inefficient.
+The user can also choose how many chains are used, which is indicative of how the tree space will be explored.
+Additionally, the user chooses the burn-in, or how many of the early samples will be discarded. Sampling frequency and partitioning are further choices the user can make.
+As is indicated by this long list, Mr. Bayes allows the user to make many choices when running their software.
+
+### Downloading Mr. Bayes
+
+#In order to download Mr. Bayes, I first had to download Homebrew. To download Homebrew, and add it to my path, I ran:
+
+#/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+#echo >> /home/olaf6/.bashrc
+    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >> /home/olaf6/.bashrc
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
+    
+#sudo apt-get install build-essential
+
+#brew install gcc
+
+
+#To then download Mr. Bayes, I ran the code:
+
+#brew reinstall -s mrbayes
+
+### Creating the Mr. Bayes block
+
+#To make this mr.bayes block, I made a separate file called mbblock.txt. In this file, I put the block:
+
+#begin mrbayes;
+ set autoclose=yes;
+ prset brlenspr=unconstrained:exp(10.0);
+ prset shapepr=exp(1.0);
+ prset tratiopr=beta(1.0,1.0);
+ prset statefreqpr=dirichlet(1.0,1.0,1.0,1.0);
+ lset nst=6 rates=gamma ngammacat=4;
+ mcmcp ngen=10000000 samplefreq=10 printfreq=100 nruns=1 nc>
+ outgroup XP_050427214.1_Adelges_cooleyi;
+ mcmc;
+ sumt;
+end;
+
+### Notes on the block
+
+#this goes over the meanings of the commands in the block and what choices I made
+
+#begin mrbayes; starts command block
+
+#set autoclose=yes; exits Mr. Bayes after all commands in the block have finished executing
+
+#prset brlenspr=unconstrained:exp(10,0); this sets the prior on branch lengths, reflecting that most branches are short, but longer are possible.
+
+#prset shapepr=exp(1.0); this sets prior on gamma shape parameter. Here with mean 1 assumes moderate rate heterogeneity while remaining weakly informative.
+
+#prset tratiopr=beta(1.0,1.0); This sets the prior on the transition/transversion rate ratio (beta is uniform).
+
+#prset statefreqpr=dirichlet(1.0,1.0,1.0,1.0) This sets the prior on nucleotide base frequencies (uniform assumes no bias).
+
+#lset nst=6 rates=gamma ngammacat=4; this specifies substitution model: the GTR model (chosen due to common choice) with gamma-distributed rate variation across sites, approximated using four rate categories.
+
+#mcmcp ngen=10000000 samplefreq=10 printfreq=100 nruns=1 nchains=3 savebrlens=yes;
+this sets the MCMC run parameters: 10,000,000 generations, sampling every 10 generations, progress printed every 100 generation, one independent run with three chains, and branch lengths saved for sample trees.
+
+#outgroup XP_050427214.1_Adelges_cooleyi; Specifies Adelges cooleyi as the outgroup for rooting the tree (based on algorithms from likelihood, NOT BIOLOGICALLY RELEVANT IN THIS EXAMPLE)
+
+#mcmc; Executes MCMC using the above settings
+
+#sumt; Summarizes sampled trees and produces a consensus tree with posterior probabilities for clades.
+
+#end; ends block
+
+### Running Mr. Bayes
+
+#To run Mr. Bayes, I appended the mr.bayes block onto the end of a nexus file.
+To create this nexus file, I ran this code in R:
+
+#library(ape)
+
+# x <- read.dna("slc4_cds_mafftV1_aligned.fasta", format = "fasta")
+write.nexus.data(as.list(as.character(x)), file = "slc4_cds_mafftV1_aligned_clean.nex")
+
+#Now to append the MrBayes block to the end of the nexus file (slc4_cds_mafftV1_aligned_mb.nex):
+
+#cat slc4_cds_mafftV1_aligned_clean.nex mbblock.txt > slc4_cds_mafftV1_aligned_mb.nex
+
+#Now to run Mr. Bayes I ran:
+
+#mb 
+
+#execute slc4_cds_mafftV1_aligned_mb.nex
+
+### Results
+
+#To assess whether the chain converged and had good mixing, I downloaded Tracer for Linux:
+
+wget https://github.com/beast-dev/tracer/releases/download/v1.7.2/Tracer_v1.7.2.tgz
+
+#I created a folder before extracting to prevent file mess
+mkdir tracer
+
+#I extracted into that folder
+tar -xvzf Tracer_v1.7.2.tgz -C tracer
+
+#Went into bin folder
+cd tracer/bin
+
+#Ran it
+./tracer
+
+#Then needed to file -> Import Trace File and select slc4_cds_mafftV1_aligned_mb.nex.p
+
+### Assessing the trace plot 
+
+#Behavior:
+
+#ESS value and indications:
+
+### Note: come back and finish this once my Mr. Bayes is done running
+
+#Then did quick and dirty plot in R:
+
+#library(ape)
+
+#tre = read.nexus(file="algaemb-mb.nex.con.tre")
+
+#plot(tre)
+
+#Then saved this tree as a pdf in my data file

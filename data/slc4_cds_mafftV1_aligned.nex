@@ -1,0 +1,13 @@
+begin mrbayes;
+ set autoclose=yes;
+ prset brlenspr=unconstrained:exp(10.0);
+ prset shapepr=exp(1.0);
+ prset tratiopr=beta(1.0,1.0);
+ prset statefreqpr=dirichlet(1.0,1.0,1.0,1.0);
+ lset nst=6 rates=gamma ngammacat=4;
+ mcmcp ngen=10000000 samplefreq=10 printfreq=100 nruns=1 nchains=3 savebrlens=yes;
+ outgroup Adelges_cooleyi;
+ mcmc;
+ sumt;
+end;
+
