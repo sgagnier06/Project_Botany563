@@ -338,6 +338,7 @@ The user can also choose how many chains are used, which is indicative of how th
 Additionally, the user chooses the burn-in, or how many of the early samples will be discarded. Sampling frequency and partitioning are further choices the user can make.
 As is indicated by this long list, Mr. Bayes allows the user to make many choices when running their software.
 
+
 ### Downloading Mr. Bayes
 
 #In order to download Mr. Bayes, I first had to download Homebrew. To download Homebrew, and add it to my path, I ran:
