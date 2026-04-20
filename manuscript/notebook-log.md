@@ -459,3 +459,65 @@ cd tracer/bin
 #plot(tre)
 
 #Then saved this tree as a pdf in my data file
+
+## Tree Visualization
+
+### Still need to fill in info for how I went about cleaning up trees and visualizing them better
+
+## Coalescent: ASTRAL
+
+### ASTRAL Information
+
+#ASTRAL (Accurate Species TRee ALgorithm) is a coalescent model used to infer a species tree from many gene trees.
+ASTRAl works to take already-inferred gene trees and find the species tree most consistent with all of them (under the Multipspecies Coalescent Model).
+To infer the species tree, ASTRAL breaks the gene trees into sets of 4 taxa, or quartets, and finds a species tree that maximizes the agreement of quartets.
+Key assumptions of ASTRAL include that it assumes gene tree discordances are due to incomplete lineage sorting (ILS). Therefore, it doesn't model gene hybridization, or horizontal gene transfer.
+Further, it assumes the gene trees are accurate, that loci are independent, and it expects single-copy orthologs.
+Some strengths of ASTRAL are that it handles a lot of genes at a much faster rate than Bayesian methods.
+As it models ILS, it is designed to use gene trees that disagree, and is thus more appropriate than other methods like concatenation.
+It also provides support values and is statistically significant under the MSC model.
+Some weakness of ASTRAL include that it can often infer the wrong species tree if there are many errors among the gene trees themselves. Additionally, it fails to model for hybridization, and horizontal gene transfer. It also does not estimate divergence or branch lengths, and further requires multiple loci to use.
+Users get many choices when using ASTRAL. They can choose gene tree inference method (IQ-TREE, RAxML, etc.), they can choose which loci to include, as well as how to handle branch support and rooting processes. Input format (in Newick file) is also a major choice.
+Overall, ASTRAL is a very helpful, scalable coalescent model software, but it has its limitations, especially for situations in which it can be used. 
+
+#The last comment in the information paragraph applies to my dataset, in that my dataset is a gene family, and the respective clades are not directly separated into orthologs (it is not inferrable), thus as there is no clear ortholog separation, I will be using a toy dataset as practice in ASTRAL.
+
+### Downloading ASTRAL
+
+#To download ASTRAL, you can go into their github and navigate to the "Install" section:
+
+#https://github.com/smirarab/ASTRAL
+
+#I downloaded the zip file and then extracted it in the terminal:
+
+#unzip Astral.5.7.8.zip
+
+#I then located the ASTRAL repsitory on my computer and entered the repo:
+
+#cd ASTRAL
+
+#I then used "ls" to confirm that I was indeed in the right place.
+
+### Running ASTRAL
+
+#Due to the fact that my dataset is incompatible with running ASTRAL, I ran ASTRAL with the toy dataset song_mammals.424.gene.tre from the ASTRAL github.
+
+#After making sure I was still in the ASTRAL repository, I ran ASTRAl on the sample mammalian dataset:
+
+#java -jar astral.5.7.8.jar -i test_data/song_mammals.424.gene.tre
+
+#To save the results in an output file, I ran code with the -o option:
+
+#java -jar astral.5.7.8.jar -i test_data/song_mammals.424.gene.tre -o test_data/song_mammals.tre
+
+#java -Djava.library.path=./lib/ -jar astralmp.5.7.8.jar -i test_data/song_mammals.424.gene.tre -o test_data/song_mammals.tre
+
+#After running ASTRAL, I read the estimated species tree in R:
+
+#library(ape)
+
+#tre = read.tree("test_data/song_mammals.tre")
+
+#plot(tre)
+
+#nodelabels(text = tre$node.label)
