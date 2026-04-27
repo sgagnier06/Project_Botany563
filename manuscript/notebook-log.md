@@ -460,10 +460,6 @@ cd tracer/bin
 
 #Then saved this tree as a pdf in my data file
 
-## Tree Visualization
-
-### Still need to fill in info for how I went about cleaning up trees and visualizing them better
-
 ## Coalescent: ASTRAL
 
 ### ASTRAL Information
@@ -521,3 +517,503 @@ Overall, ASTRAL is a very helpful, scalable coalescent model software, but it ha
 #plot(tre)
 
 #nodelabels(text = tre$node.label)
+
+# Tree Visualization
+
+#Here I show how I went about comparing the output plots/objects from IQ-TREE bootstrap and Mr.Bayes. 
+
+#First, I rooted them at their midpoints, which is a technique where you root the tree at the midpoint of the longest path between two tips.
+This fits for this gene family, as there is no outgroup to use, which was previously discussed.
+
+#Due to the tree having 74 tips, I decided to replace the tiplabels with clades labelled by color. Thus, I had to identify the clades.
+I sorted them into three clades: NBC (Na⁺-coupled bicarbonate transporters), AE (Anion Exchanger), and BTR (Borate Transporter).
+
+#> clades <- list(
++    Clade_NBC = c("NP_723263.2_Drosophila_melanogaster", "XP_037297864.1_Manduca_sexta", "XP_026301925.1_Apis_mellifera", "XP_021702978.1_Aedes_aegypti", "XP_035714201.1_Folsomia_candida", "XP_021944366.1_Folsomia_candida", "XP_021945310.1_Folsomia_candida", "XP_021965293.1_Folsomia_candida", "XP_021958949.1_Folsomia_candida", "XP_023335287.1_Eurytemora_carolleeae", "XP_023331216.1_Eurytemora_carolleeae", "XP_023341972.1_Eurytemora_carolleeae", "XP_023330571.1_Eurytemora_carolleeae", "XP_023337425.1_Eurytemora_carolleeae", "XP_022670356.1_Varroa_destructor", "XP_037563858.1_Dermacentor_silvarum", "XP_040355257.1_Ixodes_scapularis", "XP_055954081.1_Argiope_bruennichi", "XP_055933416.1_Argiope_bruennichi", "XP_045135593.1_Portunus_trituberculatus", "XP_047469502.1_Penaeus_chinensis", "XP_046386757.1_Ischnura_elegans", "XP_049821957.1_Aethina_tumida", "XP_053600986.1_Plodia_interpunctella", "XP_041988489.1_Aricia_agestis"),
++    Clade_AE = c("XP_030022091.1_Manduca_sexta", "XP_026299833.1_Apis_mellifera", "XP_021698552.1_Aedes_aegypti", "XP_035714633.1_Folsomia_candida", "XP_021963010.1_Folsomia_candida", "XP_021967352.2_Folsomia_candida", "XP_021966994.1_Folsomia_candida", "XP_023321020.1_Eurytemora_carolleeae", "XP_022670272.1_Varroa_destructor", "XP_037575123.1_Dermacentor_silvarum", "XP_029823820.2_Ixodes_scapularis", "XP_055928196.1_Argiope_bruennichi", "XP_045109013.1_Portunus_trituberculatus", "XP_047502127.1_Penaeus_chinensis", "XP_046401171.1_Ischnura_elegans", "XP_050427214.1_Adelges_cooleyi", "XP_049819812.1_Aethina_tumida", "XP_053623672.1_Plodia_interpunctella", "XP_041987042.1_Aricia_agestis"),
++  Clade_BTR = c("XP_037557158.2_Dermacentor_silvarum", "XP_023337083.1_Eurytemora_carolleeae", "XP_022650738.1_Varroa_destructor", "XP_022671136.1_Varroa_destructor", "XP_029830696.3_Ixodes_scapularis", "XP_055929311.1_Argiope_bruennichi", "XP_045124352.1_Portunus_trituberculatus", "XP_047483872.1_Penaeus_chinensis")
++ )
+
+#I then did the midpoint rooting, clade coloring, labelling, and put bootstrap values as circles corresponding to bootstrap value at the nodes, all consecutively. All together, I made two trees: one of the IQ-TREE plot before bootstrapping, and one after bootstrapping:
+
+### FINAL IQ-TREE Plot with Midpoint-rooting (No Bootstrap):
+
+#library(ape)
+
+#library(phangorn)
+
+#library(ggtree)
+
+#library(ggplot2)
+
+#Read IQ-TREE best tree
+
+#tre <- read.tree("slc4_cds_mafftV1_aligned.treefile")
+
+#Midpoint root
+
+#tre <- midpoint(tre)
+
+#Ensure bootstrap values are numeric
+
+#tre$node.label <- as.numeric(tre$node.label)
+
+#Group taxa
+
+#tree_grouped <- groupOTU(tre, clades)
+
+#Build base plot
+
+#p <- ggtree(tree_grouped, aes(color = group), size = 0.6) +
+  geom_tree() +
+  geom_point2(
+    aes(subset = !isTip, size = as.numeric(label)),
+    color = "black",
+    alpha = 0.7
+  ) +
+  scale_size(
+    name = "Bootstrap Support",
+    range = c(1, 5),
+    breaks = c(50, 70, 90)
+  ) +
+  scale_color_manual(values = c(
+    "0" = "gray85",
+    "Clade_AE" = "forestgreen",
+    "Clade_BTR" = "turquoise3",
+    "Clade_NBC" = "purple"
+  )) +
+  theme_tree() +
+  guides(color = "none")
+  
+#Final plot with labels and title
+
+#final_plot <- p +
+  annotate("text", x = 3.25, y = 55, label = "NBC",
+           hjust = 0, color = "purple", size = 8) +
+  annotate("text", x = 2.25, y = 18, label = "AE",
+           hjust = 0, color = "forestgreen", size = 8) +
+  annotate("text", x = 4.25, y = 35, label = "BTR",
+           hjust = 0, color = "turquoise3", size = 8) +
+  ggtitle("Slc4 Gene Family Phylogeny (IQ-TREE, midpoint-rooted)") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold")
+  )
+
+#Display plot
+print(final_plot)
+
+#Export for Google Slides
+
+#ggsave(
+  "slc4_midpoint_rooted_tree.png",
+  plot = final_plot,
+  width = 12,
+  height = 7,
+  dpi = 300,
+  bg = "white"
+)
+
+### FINAL IQ-TREE Plot with Midpoint-rooting
+
+
+#library(ape)
+
+#library(phangorn)
+
+#library(ggtree)
+
+#library(ggplot2)
+
+#Read IQ-TREE tree
+tre <- read.tree("slc4_cds_mafftV1_aligned.treefile")
+
+#Midpoint root
+tre <- midpoint(tre)
+
+#Ensure bootstrap values are numeric
+tre$node.label <- as.numeric(tre$node.label)
+
+#Group taxa after rooting
+tree_grouped <- groupOTU(tre, clades)
+
+#Build plot
+
+#p <- ggtree(tree_grouped, aes(color = group), size = 0.6) +
+  geom_tree() +
+  geom_point2(
+    aes(subset = !isTip, size = as.numeric(label)),
+    color = "black",
+    alpha = 0.7
+  ) +
+  scale_size(
+    name = "Bootstrap Support",
+    range = c(1, 5),
+    breaks = c(50, 70, 90)
+  ) +
+  scale_color_manual(values = c(
+    "0" = "gray85",
+    "Clade_AE" = "forestgreen",
+    "Clade_BTR" = "turquoise3",
+    "Clade_NBC" = "purple"
+  )) +
+  theme_tree() +
+  guides(color = "none")
+
+#Final plot object
+
+#final_plot <- p +
+  annotate("text", x = 3.25, y = 55, label = "NBC",
+           hjust = 0, color = "purple", size = 8) +
+  annotate("text", x = 2.25, y = 18, label = "AE",
+           hjust = 0, color = "forestgreen", size = 8) +
+  annotate("text", x = 4.25, y = 35, label = "BTR",
+           hjust = 0, color = "turquoise3", size = 8) +
+  ggtitle("Slc4 Gene Family Phylogeny (IQ-TREE, midpoint-rooted)") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold")
+  )
+
+#print(final_plot)
+
+#Export for Google Slides
+
+#ggsave(
+  "slc4_midpoint_rooted_tree.png",
+  plot = final_plot,
+  width = 12,
+  height = 7,
+  dpi = 300,
+  bg = "white"
+)
+
+#This involved a lot of adjusting size values for circles, labels, and such. Additionally, make sure to install the packages if errors come up where R does not recognize the package.
+
+#For both, the last part of the code block is me exporting the plot for usage in the presentation.
+
+#Similarly, for comparison, I constructed a plot from the Mr.Bayes output object, this time putting posterior probability at the nodes instead of bootstrap values:
+
+### Final Mr.Bayes Plot With Posterior Probability Values
+
+#library(ape)
+
+#library(phangorn)
+
+#library(ggtree)
+
+#library(ggplot2)
+
+#library(treeio)
+ 
+#Read MrBayes tree
+
+#mb <- read.mrbayes("slc4_cds_mafftV1_aligned_mb.nex.con.tre")
+ 
+#Extract posterior probabilities
+
+#mb_plot_data <- ggtree(mb)$data
+
+#support_data <- mb_plot_data[!mb_plot_data$isTip, c("node", "prob")]
+ 
+#Convert to phylo
+
+#tre <- as.phylo(mb)
+ 
+#Put posterior probabilities into node labels
+
+#internal_nodes <- (Ntip(tre) + 1):(Ntip(tre) + tre$Nnode)
+
+#tre$node.label <- support_data$prob[match(internal_nodes, support_data$node)]
+ 
+#Midpoint root
+
+#tre <- midpoint(tre)
+
+#Group taxa
+
+#tree_grouped <- groupOTU(tre, clades)
+ 
+#Build plot
+
+#p <- ggtree(tree_grouped, aes(color = group), size = 0.6) +
+    geom_tree() +
+    geom_point2(
+        aes(subset = !isTip, size = as.numeric(label)),
+        color = "black",
+        alpha = 0.7
+    ) +
+    scale_size(
+        name = "Posterior Probability",
+        range = c(1, 5),
+        breaks = c(0.50, 0.75, 0.95, 1.00)
+    ) +
+    scale_color_manual(values = c(
+        "0" = "gray85",
+        "Clade_AE" = "forestgreen",
+        "Clade_BTR" = "turquoise3",
+        "Clade_NBC" = "purple"
+    )) +
+    theme_tree() +
+    guides(color = "none")
+
+#Final plot
+
+#final_plot <- p +
+    annotate("text", x = 2.75, y = 55, label = "NBC",
+             hjust = 0, color = "purple", size = 8) +
+    annotate("text", x = 2.75, y = 32, label = "AE",
+             hjust = 0, color = "forestgreen", size = 8) +
+    annotate("text", x = 2.50, y = 5, label = "BTR",
+             hjust = 0, color = "turquoise3", size = 8) +
+    ggtitle("Slc4 Gene Family Phylogeny (MrBayes, midpoint-rooted)") +
+    theme(
+        plot.title = element_text(hjust = 0.5, size = 16, face = "bold")
+    )
+ 
+#print(final_plot)
+
+
+#I then output this into a png file titled "Midpoint_Slc4_Gene_Family_Phylogeny_MrBayes_Final" in R
+
+## Tree Comparison
+
+#I decided to compare the IQ-TREE plot with bootstrap to the Mr.Bayes plot, by first plotting both side by side:
+
+### Tree Combination: IQ-TREE with Bootstrap and Mr.Bayes
+
+#install.packages("patchwork")
+
+#library(ape)
+
+#library(phangorn)
+
+#library(ggtree)
+
+#library(ggplot2)
+
+#library(treeio)
+
+#library(patchwork)
+
+#=========================
+IQ-TREE
+=========================#
+
+#iq_tre <- read.tree("slc4_cds_mafftV1_aligned.treefile")
+
+#iq_tre <- midpoint(iq_tre)
+
+#iq_tre$node.label <- as.numeric(iq_tre$node.label)
+
+#iq_grouped <- groupOTU(iq_tre, clades)
+
+#iq_plot <- ggtree(iq_grouped, aes(color = group), size = 0.6) +
+  geom_tree() +
+  geom_point2(
+    aes(subset = !isTip & !is.na(as.numeric(label)),
+        size = as.numeric(label)),
+    color = "black",
+    alpha = 0.6
+  ) +
+  scale_size(
+    name = "Bootstrap Support",
+    range = c(0.4, 2.2),
+    breaks = c(50, 70, 90)
+  ) +
+  scale_color_manual(values = c(
+    "0" = "gray85",
+    "Clade_AE" = "forestgreen",
+    "Clade_BTR" = "turquoise3",
+    "Clade_NBC" = "purple"
+  )) +
+  annotate("text", x = 3.25, y = 55, label = "NBC",
+           hjust = 0, color = "purple", size = 6) +
+  annotate("text", x = 2.25, y = 18, label = "AE",
+           hjust = 0, color = "forestgreen", size = 6) +
+  annotate("text", x = 4.25, y = 35, label = "BTR",
+           hjust = 0, color = "turquoise3", size = 6) +
+  xlim(0, 7.5) +
+  ggtitle("IQ-TREE (Bootstrap Support)") +
+  theme_tree() +
+  guides(color = "none") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
+  )
+
+#=========================
+MrBayes
+=========================#
+
+#mb <- read.mrbayes("slc4_cds_mafftV1_aligned_mb.nex.con.tre")
+
+#mb_data <- ggtree(mb)$data
+
+#support_data <- mb_data[!mb_data$isTip, c("node", "prob")]
+
+#mb_tre <- as.phylo(mb)
+
+#internal_nodes <- (Ntip(mb_tre) + 1):(Ntip(mb_tre) + mb_tre$Nnode)
+
+#mb_tre$node.label <- support_data$prob[match(internal_nodes, support_data$node)]
+
+#mb_tre <- midpoint(mb_tre)
+
+#mb_grouped <- groupOTU(mb_tre, clades)
+
+#mb_plot <- ggtree(mb_grouped, aes(color = group), size = 0.6) +
+  geom_tree() +
+  geom_point2(
+    aes(subset = !isTip & !is.na(as.numeric(label)),
+        size = as.numeric(label)),
+    color = "black",
+    alpha = 0.6
+  ) +
+  scale_size(
+    name = "Posterior Probability",
+    range = c(0.4, 2.2),
+    breaks = c(0.75, 0.95, 1.00)
+  ) +
+  scale_color_manual(values = c(
+    "0" = "gray85",
+    "Clade_AE" = "forestgreen",
+    "Clade_BTR" = "turquoise3",
+    "Clade_NBC" = "purple"
+  )) +
+  annotate("text", x = 3.25, y = 55, label = "NBC",
+           hjust = 0, color = "purple", size = 6) +
+  annotate("text", x = 2.25, y = 18, label = "AE",
+           hjust = 0, color = "forestgreen", size = 6) +
+  annotate("text", x = 4.25, y = 35, label = "BTR",
+           hjust = 0, color = "turquoise3", size = 6) +
+  xlim(0, 7.5) +
+  ggtitle("MrBayes (Posterior Probability)") +
+  theme_tree() +
+  guides(color = "none") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
+  )
+
+#=========================
+Combine and export
+=========================#
+
+#combined_plot <- iq_plot + mb_plot +
+  plot_layout(ncol = 2)
+
+#print(combined_plot)
+
+#ggsave(
+  "slc4_iqtree_mrbayes_comparison.png",
+  plot = combined_plot,
+  width = 16,
+  height = 7,
+  dpi = 300,
+  bg = "white"
+)
+
+#This last step saves the plot like the other plots, and was used in my presentation.
+
+#Further, I visualized a cophylogeny of the two to directly compare how well each algorithm output overlap with one another:
+
+### Visualizing a Cophylogeny: Mr.Bayes and IQ-TREE Bootstrap Plots
+
+#library(ape)
+
+#library(phangorn)
+
+#library(phytools)
+
+#-------------------
+Read trees
+-------------------#
+
+#iq_tree <- read.tree("slc4_cds_mafftV1_aligned.treefile")
+
+#mb_tree <- read.nexus("slc4_cds_mafftV1_aligned_mb.nex.con.tre")
+
+#-------------------
+Midpoint root
+-------------------#
+
+#iq_tree <- midpoint(iq_tree)
+
+#mb_tree <- midpoint(mb_tree)
+
+#-------------------
+Keep shared taxa
+-------------------#
+
+#common_tips <- intersect(iq_tree$tip.label, mb_tree$tip.label)
+
+#iq_tree <- keep.tip(iq_tree, common_tips)
+
+#mb_tree <- keep.tip(mb_tree, common_tips)
+
+#-------------------
+Build cophylogeny
+-------------------#
+
+#co <- cophylo(iq_tree, mb_tree, rotate = TRUE)
+
+#-------------------
+Color links by clade
+-------------------#
+
+#link_cols <- rep("gray65", length(common_tips))
+
+#names(link_cols) <- common_tips
+
+#link_cols[names(link_cols) %in% clades$Clade_AE]  <- "darkgreen"
+
+#link_cols[names(link_cols) %in% clades$Clade_BTR] <- "darkcyan"
+
+#link_cols[names(link_cols) %in% clades$Clade_NBC] <- "purple3"
+
+#-------------------
+Export with clean title
+-------------------#
+
+#png(
+  filename = "slc4_iqtree_mrbayes_cophylogeny.png",
+  width = 14,
+  height = 9,
+  units = "in",
+  res = 300,
+  bg = "white"
+)
+
+#layout(matrix(c(1, 2), nrow = 2), heights = c(1, 9))
+
+#Title panel
+
+#par(mar = c(0, 0, 0, 0))
+
+#plot.new()
+
+#text(
+  0.5, 0.5,
+  "IQ-TREE vs MrBayes Cophylogeny",
+  cex = 2,
+  font = 2
+)
+
+#Tree panel
+
+#par(mar = c(1, 1, 1, 1))
+
+#plot(
+  co,
+  fsize = c(0.0001, 0.0001),  # hide tip labels
+  link.lty = "dashed",
+  link.col = link_cols[co$assoc[,1]],
+  link.lwd = 2,
+  pts = FALSE
+)
+
+#dev.off()
+
+#This saved a png outfile titled "slc4_iqtree_mrbayes_cophylogeny.png" to my computer
+
+#Overall, this cophylogeny showed that the IQ-TREE bootstrap plot and Mr.Bayes object were very similar, as both algorithms inferred quite similar trees.
+It is important to compare the outputs to algorithms and be critical of what the software outputs, thus the reason for the cophylogeny.
+
+
